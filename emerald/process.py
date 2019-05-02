@@ -102,10 +102,13 @@ def compute_cosine_similarity(vector_a, vector_b, mask_zeroes=False):
                                  dense_output=True)[0][0]
 
 
-def process_table(table, max_sample_size=10):
+def process_table(table, max_sample_size=10, identifiers=None):
     processed_columns = []
     for column_name in table:
         column_metadata = {}
+        if identifiers:
+            for key, value in identifiers.items():
+                column_metadata[key] = value
         column_metadata["column_name"] = column_name
 
         # Sample unique values from the column
@@ -114,20 +117,20 @@ def process_table(table, max_sample_size=10):
         # Process the data based on its data classification
         if is_numeric_dtype(table[column_name]):
             column_metadata["data_class"] = "numeric_or_id"
-            column_metadata["regex"] = rexpy.extract(sample_values.astype('str'))[0]
+            column_metadata["representation"] = rexpy.extract(sample_values.astype('str'))[0]
 
         elif is_string_dtype(table[column_name]):
 
             if contains_digits(sample_values, max_prop=0.5) > 0.8:
                 column_metadata["data_class"] = "numeric_or_id"
-                column_metadata["regex"] = rexpy.extract(sample_values.astype('str'))[0]
+                column_metadata["representation"] = rexpy.extract(sample_values.astype('str'))[0]
 
             elif contains_name_or_address(sample_values, column_name) > 0.65:
                 column_metadata["data_class"] = "name_or_address"
-                column_metadata["vector"] = compute_text_vector(sample_values, VOCABULARY)
+                column_metadata["representation"] = compute_text_vector(sample_values, VOCABULARY)
             else:
                 column_metadata["data_class"] = "text"
-                column_metadata["vector"] = compute_text_vector(sample_values, VOCABULARY)
+                column_metadata["representation"] = compute_text_vector(sample_values, VOCABULARY)
 
         processed_columns.append(column_metadata)
     return processed_columns
