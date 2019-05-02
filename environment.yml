@@ -133,6 +133,5 @@ dependencies:
   - zeromq=4.3.1=he6710b0_3
   - zlib=1.2.11=h7b6447c_3
   - pip:
-    - en-core-web-sm==2.0.0
     - rstr==2.2.6
     - tdda==1.0.25
