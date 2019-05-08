@@ -1,4 +1,3 @@
-import re
 import spacy
 import string
 import numpy as np
@@ -7,12 +6,12 @@ from tdda.rexpy import rexpy
 from itertools import product
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process as fuzz_process
-from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
 from pandas.api.types import is_string_dtype, is_numeric_dtype
 
+from . import utils
 
-NLP = spacy.load('en_core_web_sm')
+NLP = spacy.load("en_core_web_sm")
 
 
 # Get every combination for character n-grams for lowercase letters & numbers
@@ -22,10 +21,6 @@ for i in range(NGRAM_RANGE[0], NGRAM_RANGE[1]+1):
     for token in product(string.ascii_lowercase+string.digits+string.whitespace,
                          repeat=i):
         VOCABULARY.append(''.join(token))
-
-
-def remove_special_characters(text):
-    return re.sub(r"[^a-zA-Z0-9]+", ' ', text)
 
 
 def get_entity_type(values):
@@ -65,9 +60,9 @@ def contains_name_or_address(values, column_name):
             entity_count += 1
     values_prob = entity_count / len(values)
     # Calculate probability from column name
-    valid_names = ["address", "city", "state", "street", "country", "name"]
+    valid_names = ["addr", "address", "city", "state", "street", "country", "name"]
     _, cname_prob = fuzz_process.extractOne(
-        remove_special_characters(column_name), valid_names, scorer=fuzz.partial_ratio
+        utils.remove_special_characters(column_name), valid_names, scorer=fuzz.token_set_ratio
     )
     cname_prob = cname_prob / 100
     # Return combined probability
@@ -87,22 +82,7 @@ def compute_text_vector(values, vocabulary):
     return vector
 
 
-def compute_cosine_similarity(vector_a, vector_b, mask_zeroes=False):
-    if mask_zeroes:
-        if len(vector_a.nonzero()[1]) <= len(vector_b.nonzero()[1]):
-            nonzero_indices = vector_a.nonzero()[1]
-        else:
-            nonzero_indices = vector_b.nonzero()[1]
-        return cosine_similarity(vector_a[0, nonzero_indices],
-                                 vector_b[0, nonzero_indices],
-                                 dense_output=True)[0][0]
-    else:
-        return cosine_similarity(vector_a,
-                                 vector_b,
-                                 dense_output=True)[0][0]
-
-
-def process_table(table, max_sample_size=10, identifiers=None):
+def process(table, max_sample_size=10, identifiers=None):
     processed_columns = []
     for column_name in table:
         column_metadata = {}
@@ -113,6 +93,7 @@ def process_table(table, max_sample_size=10, identifiers=None):
 
         # Sample unique values from the column
         sample_values = table[column_name].value_counts().index[:max_sample_size]
+        # sample_values = np.array([x for x in sample_values if str(x) != 'nan'], dtype=str)
 
         # Process the data based on its data classification
         if is_numeric_dtype(table[column_name]):
@@ -126,7 +107,7 @@ def process_table(table, max_sample_size=10, identifiers=None):
                 column_metadata["representation"] = rexpy.extract(sample_values.astype('str'))[0]
 
             elif contains_name_or_address(sample_values, column_name) > 0.65:
-                column_metadata["data_class"] = "name_or_address"
+                column_metadata["data_class"] = "named_entity"
                 column_metadata["representation"] = compute_text_vector(sample_values, VOCABULARY)
             else:
                 column_metadata["data_class"] = "text"
