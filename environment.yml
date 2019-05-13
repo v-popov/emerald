@@ -135,3 +135,5 @@ dependencies:
   - pip:
     - rstr==2.2.6
     - tdda==1.0.25
+    - xeger==0.3.4
+    - regex==2018.07.11
