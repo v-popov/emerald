@@ -24,6 +24,7 @@ for i in range(NGRAM_RANGE[0], NGRAM_RANGE[1]+1):
 
 
 def get_entity_type(values):
+    # Checks whether the given values can be classified by the pretrained SPACY library
     entities = []
     for value in values:
         doc = NLP(value)
@@ -39,6 +40,7 @@ def get_entity_type(values):
 
 
 def contains_digits(values, max_prop=0.5):
+    # Calculates the ratio of elements that contain more digits than the specified threshold
     prob_sum = 0
     for value in values:
         proportion = sum(c.isdigit() for c in str(value)) / len(str(value))
