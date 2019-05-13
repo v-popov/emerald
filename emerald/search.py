@@ -8,8 +8,23 @@ from . import utils
 
 # Computes similarity score for numerical data,
 # which was encoded as regular expression
-def regex_similarity(regex_a, regex_b):
-    return 1.0
+def regex_similarity(regex_a, regex_b, num_samples=10):
+    errors = []
+    num_size_matches = 0
+    x = Xeger()
+    for i in range(num_samples):
+        sample_a = x.xeger(regex_a)
+        sample_b = x.xeger(regex_b)
+        if sum(c.isdigit() for c in sample_a) == sum(c.isdigit() for c in sample_b):
+            num_size_matches += 1        
+        allowed_errors = -1
+        result_1 = result_2 = None        
+        while not (result_1 and result_2):
+            allowed_errors += 1
+            result_1 = regex.fullmatch("({}){}".format(regex_a, '{e<=' + str(allowed_errors) + '}'), sample_b)
+            result_2 = regex.fullmatch("({}){}".format(regex_b, '{e<=' + str(allowed_errors) + '}'), sample_a)        
+        errors.append(allowed_errors)        
+    return 2.718 ** (-0.1 * (sum(errors) / num_samples + 0.5*(num_samples - num_size_matches)))
 
 
 # Computes similarity score for textual data,
