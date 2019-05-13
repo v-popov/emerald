@@ -6,10 +6,14 @@ from sklearn.metrics.pairwise import cosine_similarity
 from . import utils
 
 
+# Computes similarity score for numerical data,
+# which was encoded as regular expression
 def regex_similarity(regex_a, regex_b):
     return 1.0
 
 
+# Computes similarity score for textual data,
+# which was encoded as vector embedding
 def vector_similarity(vector_a, vector_b, partial=False):
     if partial:
         if len(vector_a.nonzero()[1]) <= len(vector_b.nonzero()[1]):
@@ -24,7 +28,7 @@ def vector_similarity(vector_a, vector_b, partial=False):
                                  vector_b,
                                  dense_output=True)[0][0]
 
-
+# Computes similarity score between two data columns
 def column_similarity(column_a, column_b):
     name_similarity = fuzz.token_set_ratio(
         utils.remove_special_characters(column_a["column_name"]),
