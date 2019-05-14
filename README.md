@@ -8,7 +8,9 @@ This repository contains the core algorithms for querying unnormalized data tabl
 Make sure to install all the necessary dependencies from the file environment.yml before running the notebook. In Anaconda it can be done using the following commands:
 
 1) Create a new virtual environment with the specified dependencies:
+
 conda env create -f environment.yml
 
 2) Activate the environment created in the previous step:
+
 conda activate emerald
