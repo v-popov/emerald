@@ -3,10 +3,12 @@
 
 A tool designed for Application Managers and Data Privacy professionals at Citi which scans application databases and flags data elements contained in the changing formula of personally identifiable information (PII), using NLP and pattern recognition.
 
-High level overview:
+This repository contains the core algorithms for querying unnormalized data tables. The example usage can be found in model-demo.ipynb notebook file.
 
-<a href="https://ibb.co/0cjVPkV"><img src="https://i.ibb.co/rmGfngf/overview.png" alt="overview" border="0" /></a>
+Make sure to install all the necessary dependencies from the file environment.yml before running the notebook. In Anaconda it can be done using the following commands:
 
-Inside of algorithm:
+1) Create a new virtual environment with the specified dependencies:
+conda env create -f environment.yml
 
-<a href="https://ibb.co/23NH5kb"><img src="https://i.ibb.co/Wvtjs2T/algo.png" alt="algo" border="0"></a>
+2) Activate the environment created in the previous step:
+conda activate emerald

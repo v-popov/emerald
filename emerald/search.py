@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 from fuzzywuzzy import fuzz
 from sklearn.metrics.pairwise import cosine_similarity
+import regex
+import rstr 
 
 from . import utils
 
@@ -11,10 +13,9 @@ from . import utils
 def regex_similarity(regex_a, regex_b, num_samples=10):
     errors = []
     num_size_matches = 0
-    x = Xeger()
     for i in range(num_samples):
-        sample_a = x.xeger(regex_a)
-        sample_b = x.xeger(regex_b)
+        sample_a = rstr.xeger(regex_a)
+        sample_b = rstr.xeger(regex_b)
         if sum(c.isdigit() for c in sample_a) == sum(c.isdigit() for c in sample_b):
             num_size_matches += 1        
         allowed_errors = -1
@@ -53,7 +54,10 @@ def column_similarity(column_a, column_b):
         data_similarity = regex_similarity(
             column_a["representation"], column_b["representation"]
         )
-        return (name_similarity * 0.7) + (data_similarity * 0.3)
+        if name_similarity > 0.5:
+            return (name_similarity * 0.7) + (data_similarity * 0.3)
+        else:
+            return data_similarity
     elif column_a["data_class"] == "named_entity" and column_b["data_class"] == "named_entity":
         data_similarity = vector_similarity(
             column_a["representation"], column_b["representation"], partial=True
